@@ -1,4 +1,5 @@
 import express from 'express'
+import path from 'path'
 import bodyParser from 'body-parser'
 import {
   createUser,
@@ -13,6 +14,7 @@ import { logger } from './middleware/logger'
 const app = express()
 
 app.use(logger)
+app.use(express.static('public'))
 app.use(bodyParser.json())
 
 app.route('/users')
@@ -25,8 +27,8 @@ app.route('/users/:id')
   .delete(deleteUser)
 
 app.get('/', (req, res) => {
-  res.set('Content-Type', 'text/html');
-  res.status(200).send('<h1>Hello World</h1>')
+  res.set('Content-Type', 'text/html')
+  res.sendFile('/index.html')
 })
 
 app.use(errorHandler)
