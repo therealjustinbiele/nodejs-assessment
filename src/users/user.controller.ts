@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { User } from './user.types';
 
 const usersFilePath = path.join(__dirname, './users.json');
@@ -8,54 +8,60 @@ const usersFilePath = path.join(__dirname, './users.json');
 function getUsers(): User[] {
   return JSON.parse(fs.readFileSync(usersFilePath, 'utf8'))
 }
+
 function saveUsers(users: User[]) {
   fs.writeFileSync(usersFilePath,  JSON.stringify(users, null, 2))
 }
 
-export async function getAllUsers(req: Request, res: Response) {
+export function getAllUsers(req: Request, res: Response, next: NextFunction) {
   try {
     const users = getUsers()
     res.status(200).send({ users })
   } catch (err) {
-    res.status(500).send(err)
+    next(err)
   }
 }
-export async function createUser(req: Request, res: Response) {
+
+export function createUser(req: Request, res: Response, next: NextFunction) {
   try {
     const existingUsers = getUsers()
     const newUser = {
       ...req.body,
       // we should come back to this...
-      // if a user is deleted, a new user will have 
+      // if a user is deleted, a new user will have a conflicting id
+      // as the users list shrinks, that malforms the length
+      // will use uuid dep instead?
       id: existingUsers.length + 1 
     }
 
     const conflictingUser = existingUsers.find(user => user.email === req.body.email)
     if (conflictingUser) {
-      return res.status(400).send('User exists with that email address')
+      return next(new Error('User already exists'))
     }
 
     existingUsers.push(newUser)
     saveUsers(existingUsers)
     res.status(201).send({ user: newUser })
   } catch (err) {
-    throw new Error('Error')
+    next(err)
   }
 }
-export async function getUserById(req: Request, res: Response) {
+
+export function getUserById(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params
     const existingUsers = getUsers()
     const foundUser = existingUsers.find(user => user.id === Number(id))
     if (!foundUser) {
-      return res.status(400).send('User not found')
+      return next(new Error('User not found'))
     }
-    res.send({ user: foundUser })
+    res.status(200).send({ user: foundUser })
   } catch (err) {
-
+    next(err)
   }
 }
-export async function updateUser(req: Request, res: Response) {
+
+export function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params
     const existingUsers = getUsers()
@@ -67,18 +73,19 @@ export async function updateUser(req: Request, res: Response) {
     saveUsers(existingUsers)
     res.status(201).send({ user: existingUsers[userIndex] })
   } catch (err) {
-
+    next(err)
   }
 }
-export async function deleteUser(req: Request, res: Response) {
+
+export function deleteUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params
     const existingUsers = getUsers()
     const userIndex = existingUsers.findIndex(user => user.id === Number(id))
     existingUsers.splice(userIndex, 1)
     saveUsers(existingUsers)
-    res.status(204).send('user deleted')
+    res.status(204).send('User deleted')
   } catch (err) {
-
+    next(err)
   }
 }
