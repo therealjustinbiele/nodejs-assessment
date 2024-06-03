@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import {
   createUser,
@@ -25,7 +25,7 @@ app.route('/users/:id')
   .post(updateUser)
   .delete(deleteUser)
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.set('Content-Type', 'text/html')
   res.sendFile('/index.html')
 })
