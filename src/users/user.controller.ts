@@ -1,7 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import { NextFunction, Request, Response } from 'express'
-import { User } from './user.types';
+import { v4 as uuidv4 } from 'uuid'
+import { User } from './user.types'
 
 const usersFilePath = path.join(__dirname, './users.json');
 
@@ -27,11 +28,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     const existingUsers = getUsers()
     const newUser = {
       ...req.body,
-      // we should come back to this...
-      // if a user is deleted, a new user will have a conflicting id
-      // as the users list shrinks, that malforms the length
-      // will use uuid dep instead?
-      id: existingUsers.length + 1 
+      id: uuidv4()
     }
 
     const conflictingUser = existingUsers.find(user => user.email === req.body.email)
@@ -51,7 +48,7 @@ export function getUserById(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params
     const existingUsers = getUsers()
-    const foundUser = existingUsers.find(user => user.id === Number(id))
+    const foundUser = existingUsers.find(user => user.id === String(id))
     if (!foundUser) {
       return next(new Error('User not found'))
     }
@@ -65,7 +62,7 @@ export function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params
     const existingUsers = getUsers()
-    const userIndex = existingUsers.findIndex(user => user.id === Number(id))
+    const userIndex = existingUsers.findIndex(user => user.id === String(id))
     existingUsers[userIndex] = {
       ...existingUsers[userIndex],
       ...req.body
@@ -81,7 +78,7 @@ export function deleteUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params
     const existingUsers = getUsers()
-    const userIndex = existingUsers.findIndex(user => user.id === Number(id))
+    const userIndex = existingUsers.findIndex(user => user.id === String(id))
     existingUsers.splice(userIndex, 1)
     saveUsers(existingUsers)
     res.status(204).send('User deleted')
