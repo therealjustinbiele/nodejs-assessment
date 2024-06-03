@@ -1,4 +1,5 @@
 import express from 'express'
+import bodyParser from 'body-parser'
 import {
   createUser,
   deleteUser,
@@ -12,6 +13,7 @@ import { logger } from './middleware/logger'
 const app = express()
 
 app.use(logger)
+app.use(bodyParser.json())
 
 app.route('/users')
   .get(getAllUsers)
