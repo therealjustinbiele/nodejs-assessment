@@ -6,10 +6,6 @@ import { User } from './user.types'
 
 const usersFilePath = path.join(__dirname, './users.json');
 
-export function sum(a: number, b: number): number {
-  return a + b + 5
-}
-
 function getUsers(): User[] {
   return JSON.parse(fs.readFileSync(usersFilePath, 'utf8'))
 }
@@ -54,7 +50,7 @@ export function getUserById(req: Request, res: Response, next: NextFunction) {
     const existingUsers = getUsers()
     const foundUser = existingUsers.find(user => user.id === String(id))
     if (!foundUser) {
-      return next(new Error('User not found'))
+      return next({ status: 404, message: new Error('User not found') })
     }
     res.status(200).send({ user: foundUser })
   } catch (err) {
