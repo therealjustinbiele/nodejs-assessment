@@ -33,3 +33,5 @@ app.get('/', (req: Request, res: Response) => {
 app.use(errorHandler)
 
 app.listen(3000, () => console.log('listening on port 3000'))
+
+export default app
