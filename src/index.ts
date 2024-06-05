@@ -9,12 +9,14 @@ import {
 } from './users/user.controller'
 import { errorHandler } from './middleware/errors'
 import { logger } from './middleware/logger'
+import { validator } from './middleware/validator'
 
 const app = express()
 
 app.use(logger)
 app.use(express.static('public'))
 app.use(bodyParser.json())
+app.use(validator)
 
 app.route('/users')
   .get(getAllUsers)
