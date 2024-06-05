@@ -22,7 +22,7 @@ app.route('/users')
 
 app.route('/users/:id')
   .get(getUserById)
-  .post(updateUser)
+  .put(updateUser)
   .delete(deleteUser)
 
 app.get('/', (req: Request, res: Response) => {

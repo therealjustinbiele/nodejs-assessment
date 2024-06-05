@@ -33,7 +33,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
 
     const conflictingUser = existingUsers.find(user => user.email === req.body.email)
     if (conflictingUser) {
-      return next(new Error('User already exists'))
+      return next({ status: 409, message: new Error('User already exists') })
     }
 
     existingUsers.push(newUser)
@@ -65,10 +65,10 @@ export function updateUser(req: Request, res: Response, next: NextFunction) {
     const userIndex = existingUsers.findIndex(user => user.id === String(id))
     existingUsers[userIndex] = {
       ...existingUsers[userIndex],
-      ...req.body
+      ...req.body // this will overwrite email addresses, ids
     }
     saveUsers(existingUsers)
-    res.status(201).send({ user: existingUsers[userIndex] })
+    res.status(204).send({ user: existingUsers[userIndex] })
   } catch (err) {
     next(err)
   }
