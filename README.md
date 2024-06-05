@@ -12,3 +12,22 @@ bad practices and code smells.
 # How to Proceed
 
 To be evaluated, the candidate must fork this repo, commit and push your changes, and once finished please upload to the Greenhouse link provided in your email.
+
+# Up and Running
+
+**Install dependencies**
+To install node dependencies for the project, run 
+`npm install`
+
+**Boot Server**
+To initialize the express server, run either of the following:
+`npm start` or `npm run start`
+
+# Tests
+To run the test suite for this project, run
+`npm test` or `npm run test`
+
+The tests are not using mock data and perform CRUD operations on the `./src/users/users.json` blob. Be sure to remove changes to the blob upon completion of each test run.
+
+# Build
+To generate a Javascript distributable, run `tsc` in the directory root, or `npm build`
