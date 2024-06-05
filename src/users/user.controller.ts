@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import { User } from './user.types'
 
-const usersFilePath = path.join(__dirname, './users.json');
+const usersFilePath = path.join(__dirname, './users.json')
 
 function getUsers(): User[] {
   return JSON.parse(fs.readFileSync(usersFilePath, 'utf8'))
@@ -63,9 +63,14 @@ export function updateUser(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params
     const existingUsers = getUsers()
     const userIndex = existingUsers.findIndex(user => user.id === String(id))
+    const conflictingEmail = existingUsers.find(user => user.email === req.body.email)
+    if (conflictingEmail) {
+      console.log(conflictingEmail)
+      return next({ status: 409, message: new Error('Email address already in use') })
+    }
     existingUsers[userIndex] = {
       ...existingUsers[userIndex],
-      ...req.body // this will overwrite email addresses, ids
+      ...req.body
     }
     saveUsers(existingUsers)
     res.status(204).send({ user: existingUsers[userIndex] })
@@ -79,6 +84,9 @@ export function deleteUser(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params
     const existingUsers = getUsers()
     const userIndex = existingUsers.findIndex(user => user.id === String(id))
+    if (userIndex < 0) {
+      return next({ status: 404, message: new Error('User not found') })
+    } 
     existingUsers.splice(userIndex, 1)
     saveUsers(existingUsers)
     res.status(204).send('User deleted')

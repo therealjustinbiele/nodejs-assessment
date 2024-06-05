@@ -56,7 +56,7 @@ describe('User Module', () => {
     });
 
     describe('PUT /users/:id', () => {
-      const newUserData = {
+      const userData = {
         name: "Bruce Wayne",
         email: "notbatman@wayneenterprises.com"
       }
@@ -64,8 +64,15 @@ describe('User Module', () => {
       test('updates an existing user by their id', async () => {
         const response = await request(app)
           .put('/users/2')
-          .send(newUserData)
+          .send(userData)
         expect(response.statusCode).toBe(204)
+      })
+      
+      test('throws if another user with the same email exists', async () => {
+        const response = await request(app)
+          .put('/users/1')
+          .send(userData)
+        expect(response.statusCode).toBe(409)
       })
     });
     
@@ -74,6 +81,12 @@ describe('User Module', () => {
         const response = await request(app)
           .delete('/users/bedd08cc-a433-4237-b932-5e20e6c70c0b')
         expect(response.statusCode).toBe(204)
+      })
+      
+      test('throws if a user is not found', async () => {
+        const response = await request(app)
+          .delete('/users/112233445566')
+        expect(response.statusCode).toBe(404)
       })
     });
 });
